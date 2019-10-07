@@ -1,67 +1,82 @@
-#include <SimpleString.h>
+#include "SimpleString.hpp"
+#include <utility>
+#include <cassert>
 
 using namespace trgm;
 
+// prevents memory allocation on empty string
+static constexpr char* emptyChars = const_cast< char* >( "" );
+
 SimpleString::SimpleString()
+    : chars( emptyChars )
+    , length( 0 )
 {
-	length = 0;
-	chars = static_cast< char* >( malloc( 1 ) );
-	chars[ 0 ] = 0;
 }
 
 SimpleString::SimpleString( const char* cstr )
+    : chars( emptyChars )
+    , length( 0 )
 {
-	const char* copyPtr = cstr;
-	length = 0;
-	while( *copyPtr++ )
-		length++;
-	chars = nullptr;
-	if( length > 0 )
-	{
-		chars = static_cast< char* >( malloc( length + 1 ) );
-		copyPtr = cstr;
-		char* curPtr = chars;
-		while( ( *( curPtr++ ) = *( copyPtr++ ) ) ) {}
-	}
+    assert( cstr );
+    auto* copyPtr = cstr;
+
+    while( *copyPtr++ )
+        length++;
+
+    if( length > 0 )
+    {
+        chars 			= new char[ length + 1 ];
+        copyPtr 		= cstr;
+        auto* curPtr 	= chars;
+        while( ( *( curPtr++ ) = *( copyPtr++ ) ) );
+    }
 }
 
 SimpleString::SimpleString( const SimpleString& s )
+    : chars( emptyChars )
+    , length( 0 )
 {
-	length = s.length;
-	chars = static_cast< char* >( malloc( length + 1 ) );
-	char* curPtr = chars;
-	const char* copyPtr = s.chars;
-	while( ( *( curPtr++ ) = *( copyPtr++ ) ) ) {}
+    if( chars != s.chars && s.length > 0 )
+    {
+        length			= s.length;
+        chars			= new char[ s.length + 1 ];
+        auto* curPtr 	= chars;
+        auto* copyPtr	= s.chars;
+        while( ( *( curPtr++) = *( copyPtr++ ) ) );
+    }
 }
 
 SimpleString::SimpleString( SimpleString&& s ) noexcept
+    : chars( emptyChars )
+    , length( 0 )
 {
-	length = s.length;
-	chars = s.chars;
-	s.length = 0;
-	s.chars = static_cast< char* >( malloc( 1 ) );
-	s.chars[ 0 ] = 0;
+    if( chars != s.chars )
+    {
+        std::swap( length, s.length );
+        std::swap( chars,  s.chars );
+    }
 }
 
 SimpleString::~SimpleString()
 {
-	free( chars );
+    if( chars != emptyChars )
+        delete[] chars;
 }
 
 SimpleString& SimpleString::operator=( const SimpleString& s )
 {
-	// TODO
-	return *this;
+    // TODO
+    return *this;
 }
 
 SimpleString& SimpleString::operator=( SimpleString&& s ) noexcept
 {
-	// TODO
-	return *this;
+    // TODO
+    return *this;
 }
 
-SimpleString&& trgm::operator+( const SimpleString& a, const SimpleString& b )
+SimpleString trgm::operator+( const SimpleString& a, const SimpleString& b )
 {
-	// TODO
-	return SimpleString();
+    // TODO
+    return SimpleString{};
 }

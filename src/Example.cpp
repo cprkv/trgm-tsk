@@ -1,12 +1,13 @@
-#include <SimpleString.h>
-#include <memory>
+#include <SimpleString.hpp>
+#include <iostream>
 
-using namespace trgm;
-
-int main(int argc, char** argv)
-{	
+int main( int argc, char** argv )
+{
+	using namespace trgm;
 	SimpleString s{ "abc" };
 	SimpleString s1{ std::move( s ) };
-	SimpleString s3 = s + s1;
+	const SimpleString s3 = s + s1;
+	const SimpleString s4 = s3;
+	std::cout << s4.CStr() << '\n';
 	return 0;
 }
