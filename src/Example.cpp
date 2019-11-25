@@ -11,11 +11,15 @@ int main( int argc, char** argv )
 	auto list = std::vector< SimpleString >{};
 
 	SimpleString tmp;
-	while( ! std::cin.eof() )
+
+	do
 	{
 		std::cin >> tmp;
+		if( tmp.Length() == 0 )
+			continue;
 		list.push_back( std::move( tmp ) );
 	}
+	while( ! std::cin.eof() );
 
 	std::sort(	std::begin(list), std::end(list), 
 				SimpleStringComparator::CaseInsensitiveInverse );

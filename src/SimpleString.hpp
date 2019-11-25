@@ -145,8 +145,7 @@ namespace trgm
 		{
 			try
 			{
-				char c = s.rdbuf()->sgetc();
-				for( ;; c = s.rdbuf()->snextc() )
+				for( char c = s.rdbuf()->sgetc(); ; c = s.rdbuf()->snextc() )
 				{
 					if( c == EOF )
 					{
