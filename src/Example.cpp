@@ -8,16 +8,14 @@ using namespace trgm;
 
 int main( int argc, char** argv )
 {
-	auto list = std::vector< SimpleString >
+	auto list = std::vector< SimpleString >{};
+
+	SimpleString tmp;
+	while( ! std::cin.eof() )
 	{
-		SimpleString{ "abcd" },
-		SimpleString{ "ABC" },
-		SimpleString{ "Bcd" },
-		SimpleString{ "dbc" },
-		SimpleString{ "bCda" },
-		SimpleString{ "bCdE" },
-		SimpleString{ "abc" },
-	};
+		std::cin >> tmp;
+		list.push_back( std::move( tmp ) );
+	}
 
 	std::sort(	std::begin(list), std::end(list), 
 				SimpleStringComparator::CaseInsensitiveInverse );

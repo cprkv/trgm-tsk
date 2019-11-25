@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cassert>
 #include <utility>
+#include <istream>
 
 namespace trgm
 {
@@ -35,6 +36,9 @@ namespace trgm
 		char*				chars	= emptyChars;
 		static char* 		emptyChars;	// prevents memory allocation on empty string
 	};
+
+	SimpleString 			operator+( const SimpleString& a, const SimpleString& b );
+	std::istream& 			operator>>( std::istream& s, SimpleString& a );
 
 	//	inline implimentation ---------------------------------------------------------------------------------
 
@@ -129,5 +133,49 @@ namespace trgm
 			str[ i + a.Length() ] = b[ i ];
 
 		return str;
+	}
+
+	inline std::istream& operator>>( std::istream& s, SimpleString& str )
+	{
+		auto state		= static_cast< std::ios_base::iostate >( std::istream::goodbit );
+		auto changed	= false;
+		size_t len		= 0;
+
+		if( std::istream::sentry{ s, true } )  // state okay, extract characters
+		{
+			try
+			{
+				char c = s.rdbuf()->sgetc();
+				for( ;; c = s.rdbuf()->snextc() )
+				{
+					if( c == EOF )
+					{
+						state |= std::istream::eofbit;
+						break;
+					}
+					else if( c == '\n' )
+					{
+						changed = true;
+						s.rdbuf()->sbumpc();
+						break;
+					}
+					else
+					{
+						char tmp[2] = { c, 0 };
+						str = str + SimpleString{ tmp };
+					}
+				}
+			}
+			catch( ... )
+			{
+				s.setstate( std::istream::badbit, true ); // set badbit and rethrow
+			}
+		}
+
+		if( ! changed )
+			state |= std::istream::failbit;
+
+		s.setstate( state );
+		return s;
 	}
 }

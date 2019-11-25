@@ -1,108 +1,83 @@
+param
+(
+	[switch] $clean			= $false,
+	[switch] $gen			= $false,
+	[switch] $build			= $false,
+	[string] $config		= 'Debug',
+	[switch] $cleanbuild	= $false,
+	[switch] $run			= $false,
+	[switch] $test			= $false
+)
+
+if( !$clean -and !$gen -and !$build -and !$cleanbuild -and !$run -and !$test )
+{
+	Write-Output "no action specified. you can pass arguments:"
+	Write-Output "    -clean             - cleans all build/tmp dirs in solution"
+	Write-Output "    -gen               - generates visual studio solution for build"
+	Write-Output "    -build             - builds solution (requires -gen first), additional flags for -build:"
+	Write-Output "        -config Debug  - cmake build type, default Debug, can be Release"
+	Write-Output "    -run               - run example app"
+	Write-Output "    -test              - run tests in solution"
+	exit
+}
+
 $currentDirectory = Get-Location
 
-Try
+try
 {
-	ForEach( $arg in $args )
+	if( $clean )
 	{
-		switch( $arg )
-		{
-			"r"
-			{
-				Write-Output "set Release flag"
-				$buildType = "Release"
-				break
-			}
-			"d"
-			{
-				Write-Output "set Debug flag"
-				$buildType = "Debug"
-				break
-			}
-		}
+		Write-Output "cleaning"
+		Remove-Item obj -Recurse -Confirm:$false -Force -ErrorAction SilentlyContinue | Out-Null
+		Remove-Item bin -Recurse -Confirm:$false -Force -ErrorAction SilentlyContinue | Out-Null
 	}
-
-	ForEach( $arg in $args )
+	if( !( Test-Path obj ) )
 	{
-		switch -wildcard( $arg )
-		{
-			"clean"
-			{
-				Try
-				{
-					Remove-Item -Recurse -Force -ErrorAction Stop -Path obj
-				}
-				Catch [ System.Management.Automation.ItemNotFoundException ]
-				{
-					Write-Output "no obj folder"
-				}
-				Try
-				{
-					Remove-Item -Force -ErrorAction Stop -Path bin/example.exe
-				}
-				Catch [ System.Management.Automation.ItemNotFoundException ]
-				{
-					Write-Output "no bin folder"
-				}
-				Write-Output "clean ok"
-				break
-			}
-		}
+		Write-Output "no obj directory found. creating"
+		New-Item -ItemType Directory -Force -Path obj
 	}
-
-	ForEach( $arg in $args )
+	if( !( Test-Path bin ) )
 	{
-		switch -wildcard( $arg )
-		{
-			"gen*"
-			{
-				$year = "20" + $arg.Substring( "gen".Length )
-				$cmakeGenerators = cmd /c cmake -G '2>&1'
-				$filteredGenerator = $cmakeGenerators.Where{ $_.Contains( "Visual Studio" ) -and $_.Contains( $year ) }[0]
-				$first = $filteredGenerator.IndexOf( "Visual" )
-				$count = $filteredGenerator.IndexOf( " = " ) - $first
-				$generator = $filteredGenerator.Substring( $first, $count ).Trim( " ", "	" )
-				if( $filteredGenerator.Contains( "[arch]" ) )	# todo check this condition
-				{
-					$generator = $generator.Substring( 0, $generator.IndexOf( " [arch]" ) )
-					$generator = $generator + " Win64"
-				}
-				Write-Output "cmake generator will use '$generator'"
-				mkdir -Path obj -ErrorAction SilentlyContinue | Out-Null
-				Set-Location obj
-				$additionalArgs = ""
-				if( $buildType.Equals( "Debug" ) )
-				{
-					$additionalArgs = "-Werror=dev"
-				}
-				cmake .. -G $generator $additionalArgs
-				Set-Location ..
-				break
-			}
-			"b"
-			{
-				if( $buildType.Equals( "" ) )
-				{
-					throw 'You need specify configuration for this command: r or d'
-				}
-				Set-Location obj
-				$additionalArgs = ""
-				if( $buildType.Equals( "Debug" ) )
-				{
-					$additionalArgs = @("--verbose", "--clean-first")
-				}
-				cmake --build . --config $buildType $additionalArgs
-				Set-Location ..
-				if( Test-Path -PathType Leaf -Path bin/$buildType/*.exe )
-				{
-					Get-ChildItem -Path bin/$buildType | 
-						Where-Object { $_.Name -match ".exe" } | 
-						Copy-Item -Destination bin
-				}
-			}
-		}
+		Write-Output "no bin directory found. creating"
+		New-Item -ItemType Directory -Force -Path bin
 	}
+	if( $gen )
+	{
+		Write-Output "generating solution"
+		cmake -S . -B obj -Werror=dev
+	}
+	if( $build -or $cleanbuild )
+	{
+		Write-Output "building solution in config $config"
+		$additionalArgs = @()
+		if( $config.Equals( "Debug" ) )
+		{
+			$additionalArgs = $additionalArgs + "--verbose"
+		}
+		if( $cleanbuild )
+		{
+			$additionalArgs = $additionalArgs + "--clean-first"
+		}
+		cmake --build obj --config $config $additionalArgs
+		Remove-Item bin/example.exe -Confirm:$false -Force -ErrorAction Ignore
+		Remove-Item bin/tests.exe -Confirm:$false -Force -ErrorAction Ignore
+		Copy-Item obj/$config/example.exe bin
+		Copy-Item obj/$config/tests.exe bin
+	}
+	if( $run )
+	{
+		Write-Output "running"
+		.\bin\example.exe
+	}
+	if( $test )
+	{
+		Write-Output "testing"
+		.\bin\tests.exe
+	}
+	Write-Output "exit ok"
 }
-Finally
+finally
 {
+	# restore
 	Set-Location $currentDirectory
 }

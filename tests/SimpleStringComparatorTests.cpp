@@ -6,6 +6,7 @@ using namespace trgm;
 DECLARE_TEST_GROUP
 (
 	Simple_String_Comparator_Tests,
+
 	DECLARE_TEST_FUNC
 	(
 		Comparators_Returns_True_On_Single_Character_Strings,
