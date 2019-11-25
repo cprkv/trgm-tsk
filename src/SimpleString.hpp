@@ -1,4 +1,5 @@
 #pragma once
+#include "StringBuffer.hpp"
 #include <cstddef>
 #include <cassert>
 #include <utility>
@@ -167,7 +168,8 @@ namespace trgm
 			}
 			catch( ... )
 			{
-				s.setstate( std::istream::badbit, true ); // set badbit and rethrow
+				s.setstate( std::istream::badbit );
+				return s;
 			}
 		}
 
