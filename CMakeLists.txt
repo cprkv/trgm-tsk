@@ -8,13 +8,12 @@ add_executable(
 		src/SimpleString.cpp
 		src/Example.cpp
 )
-target_include_directories( example PUBLIC src )
+target_include_directories( example PRIVATE src )
 set_target_properties(
 	example PROPERTIES
 		CXX_STANDARD			11
 		CXX_STANDARD_REQUIRED 	ON
 		CXX_EXTENSIONS			OFF
-		INCLUDE_DIRECTORIES 	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 
@@ -23,12 +22,18 @@ project( tests CXX )
 add_executable(
 	tests
 		src/SimpleString.cpp
-		src/Tests.cpp
+		tests/TestFramework.cpp
+		tests/SimpleStringTests.cpp
+		tests/SimpleStringComparatorTests.cpp
+)
+target_include_directories( 
+	tests
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+			${CMAKE_CURRENT_SOURCE_DIR}/tests
 )
 set_target_properties(
 	tests PROPERTIES
 		CXX_STANDARD			11
 		CXX_STANDARD_REQUIRED 	ON
 		CXX_EXTENSIONS			OFF
-		INCLUDE_DIRECTORIES 	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
