@@ -1,21 +1,29 @@
-#include <SimpleString.hpp>
+#include "SimpleString.hpp"
+#include "SimpleStringComparator.hpp"
+#include <algorithm>
 #include <iostream>
+#include <vector>
+
+using namespace trgm;
 
 int main( int argc, char** argv )
 {
-	using namespace trgm;
+	auto list = std::vector< SimpleString >
+	{
+		SimpleString{ "abcd" },
+		SimpleString{ "ABC" },
+		SimpleString{ "Bcd" },
+		SimpleString{ "dbc" },
+		SimpleString{ "bCda" },
+		SimpleString{ "bCdE" },
+		SimpleString{ "abc" },
+	};
 
-	SimpleString s{ "abc" };
-	SimpleString s1{ std::move( s ) };
-	const SimpleString s3 = s + s1;
-	const SimpleString s4 = s3;
-	const SimpleString s5 = std::move( s1 );
-	std::cout << s4.CStr() << '\n';
+	std::sort(	std::begin(list), std::end(list), 
+				SimpleStringComparator::CaseInsensitiveInverse );
 
-	const auto a1 = SimpleString{ "qwe" };
-	const auto a2 = SimpleString{ "rtytbd" };
-	const auto a3 = a1 + a2;
-	std::cout << a1.CStr() << '+' << a2.CStr() << '=' << a3.CStr() << '\n';
+	for( auto& item : list )
+		std::cout << item.CStr() << '\n';
 
 	return 0;
 }

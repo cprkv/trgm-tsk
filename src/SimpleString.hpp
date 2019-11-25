@@ -11,7 +11,7 @@ namespace trgm
 	{
 	public:
 							SimpleString()						{}
-								// garbage containing string
+								// garbage containing string constructor
 		explicit			SimpleString( size_t prefLength )	{ Allocate( prefLength ); }
 		explicit			SimpleString( const char* );
 							SimpleString( const SimpleString& );
@@ -43,10 +43,10 @@ namespace trgm
 		//	REMARK:
 		//	All operations on char* done via pointer and other arithmetics 
 		//	to avoid usage of <string> and <cstring> headers (memcpy, strcpy, strlen, and other).
-		//	It is not optimal solution, I know, but task requires it.
+		//	It is not optimal solution, I know, but task require to implement it that way.
 
-		inline void CStringCopy( char* dst, const char* src ) 			{ while( ( *( dst++ ) = *( src++ ) ) );			}
-		inline void CStringLength( const char* str, size_t& out )		{ for( auto* curPtr = str; *curPtr++; out++ );	}
+		inline void CStringCopy( char* dst, const char* src ) 		{ while( ( *( dst++ ) = *( src++ ) ) );			}
+		inline void CStringLength( const char* str, size_t& out )	{ for( auto* curPtr = str; *curPtr++; out++ );	}
 	}
 
 	inline SimpleString::SimpleString( const char* cstr )

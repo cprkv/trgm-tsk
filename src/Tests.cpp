@@ -4,6 +4,8 @@
 
 using namespace trgm;
 
+// todo tests for SimpleStringComparator
+
 DECLARE_TEST_RUNNER
 (
 	DECLARE_TEST_FUNC
