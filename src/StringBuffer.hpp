@@ -17,10 +17,13 @@ namespace trgm
 
 	public:
 									StringBuffer()					{}
+									StringBuffer( const StringBuffer& );
+									StringBuffer( StringBuffer&& );
 									~StringBuffer()					{ if( smallFirst[ 0 ] == noSmallString ) free( data ); }
 
-		size_t						Size()							{ return size; }
+		size_t						Size() const					{ return size; }
 		char*						Ptr()							{ return smallFirst[ 0 ] == noSmallString ? data : smallFirst; }
+		const char*					Ptr() const						{ return smallFirst[ 0 ] == noSmallString ? data : smallFirst; }
 		void						EnsureSize( size_t newSize );
 
 	private:
@@ -57,6 +60,36 @@ namespace trgm
 			x |= x >> 16;
 			return x + 1;
 		}
+	}
+
+	inline StringBuffer::StringBuffer( const StringBuffer& other )
+	{
+		size = other.size;
+
+		if( other.smallFirst[ 0 ] == noSmallString )
+		{
+			smallFirst[ 0 ] = noSmallString;
+			data = reinterpret_cast< char* >( malloc( size ) );
+			details::BufferCopy( data, other.data, size );
+		}
+		else
+		{
+			details::BufferCopy( smallFirst, other.smallFirst, size );
+		}
+	}
+
+	inline StringBuffer::StringBuffer( StringBuffer&& other )
+	{
+		size = other.size;
+		smallFirst[ 0 ] = other.smallFirst[ 0 ];
+
+		if( smallFirst[ 0 ] == noSmallString )
+			data = other.data;
+		else
+			details::BufferCopy( smallFirst, other.smallFirst, size );
+
+		other.smallFirst[ 0 ] = 0;
+		other.size = smallStringSize;
 	}
 
 	inline void StringBuffer::EnsureSize( size_t newSize )
