@@ -29,11 +29,13 @@ namespace trgm
 
 	private:
 		size_t						size 							= smallStringSize;	// full buffer size, even includes \0 symbol and garbage
+	#pragma pack( push, 1 )
 		struct
 		{
 			char					smallFirst[ smallStringPart ]	= { 0 };
 			char*					data;
 		};
+	#pragma pack( pop )
 	};
 
 	//	inline implimentation -------------------------------------------------------------------------------------------------------------------
