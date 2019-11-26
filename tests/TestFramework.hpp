@@ -9,6 +9,7 @@
 
 #if defined( EXPECTED ) ||\
 	defined( EXPECTED_CSTRING ) ||\
+	defined( NOT_EXPECTED_CSTRING ) ||\
 	defined( DECLARE_TEST_FUNC ) ||\
 	defined( DECLARE_TEST_GROUP )
 #error unexpected declaration of macro
@@ -23,6 +24,9 @@
 
 #define EXPECTED_CSTRING( result, expected ) 										\
 	EXPECTED( strcmp( result, expected ) == 0 )
+
+#define NOT_EXPECTED_CSTRING( result, expected ) 									\
+	EXPECTED( strcmp( result, expected ) != 0 )
 
 #define DECLARE_TEST_FUNC( name, ... ) 												\
 	trgm::TestPrototype																\

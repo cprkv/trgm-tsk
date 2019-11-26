@@ -25,6 +25,7 @@ add_executable(
 		tests/TestFramework.cpp
 		tests/SimpleStringTests.cpp
 		tests/SimpleStringComparatorTests.cpp
+		tests/StringBufferTests.cpp
 )
 target_include_directories( 
 	tests

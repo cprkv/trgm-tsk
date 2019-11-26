@@ -20,15 +20,18 @@ namespace trgm
 									StringBuffer()					{}
 									StringBuffer( const StringBuffer& );
 									StringBuffer( StringBuffer&& );
-									~StringBuffer()					{ if( smallFirst[ 0 ] == noSmallString ) free( data ); }
+									~StringBuffer()					{ if( smallFirst[ 0 ] == noSmallString )  free( data ); }
 
 		size_t						Size() const					{ return size; }
 		char*						Ptr()							{ return smallFirst[ 0 ] == noSmallString ? data : smallFirst; }
 		const char*					Ptr() const						{ return smallFirst[ 0 ] == noSmallString ? data : smallFirst; }
 		void						EnsureSize( size_t newSize );
 
+		StringBuffer&				operator=( const StringBuffer& );
+		StringBuffer&				operator=( StringBuffer&& );
+
 	private:
-		size_t						size 							= smallStringSize;	// full buffer size, even includes \0 symbol and garbage
+		size_t						size = smallStringSize;	// full buffer size, even includes \0 symbol and garbage
 	#pragma pack( push, 1 )
 		struct
 		{
@@ -38,7 +41,7 @@ namespace trgm
 	#pragma pack( pop )
 	};
 
-	//	inline implimentation -------------------------------------------------------------------------------------------------------------------
+	//	inline implimentation ----------------------------------------------------------------------------------------------------
 
 	namespace details
 	{
@@ -120,5 +123,41 @@ namespace trgm
 
 			size = newSize;
 		}
+	}
+
+	inline StringBuffer& StringBuffer::operator=( const StringBuffer& other )
+	{
+		if( smallFirst[ 0 ] == noSmallString )
+			free( data );
+
+		size = other.size;
+
+		if( other.smallFirst[ 0 ] == noSmallString )
+		{
+			smallFirst[ 0 ] = noSmallString;
+			data = reinterpret_cast< char* >( malloc( size ) );
+			details::BufferCopy( data, other.data, size );
+		}
+		else
+		{
+			details::BufferCopy( smallFirst, other.smallFirst, size );
+		}
+
+		return *this;
+	}
+
+	inline StringBuffer& StringBuffer::operator=( StringBuffer&& other )
+	{
+		if( smallFirst[ 0 ] == noSmallString )
+			free( data );
+
+		size = smallStringSize;
+		smallFirst[ 0 ] = 0;
+
+		std::swap( size, other.size );
+		std::swap< char, smallStringPart >( smallFirst, other.smallFirst );
+		std::swap( data, other.data );
+
+		return *this;
 	}
 } // namespace trgm

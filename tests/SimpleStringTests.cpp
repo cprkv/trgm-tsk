@@ -4,8 +4,6 @@
 
 using namespace trgm;
 
-// todo tests for SimpleStringComparator
-
 DECLARE_TEST_GROUP
 (
 	Simple_String_Tests,

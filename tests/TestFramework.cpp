@@ -9,6 +9,8 @@ static int RunTestsInGroup( const char* groupName,
 {
 	int runResult = 0;
 
+	fprintf( stderr, "\n[GROUP]\t\t%s\n", groupName );
+
 	for( size_t i = 0; i < tests.size(); i++ )
 	{
 		const char* namedResult = "OK";
@@ -19,11 +21,10 @@ static int RunTestsInGroup( const char* groupName,
 			namedResult	= "FAIL";
 		}
 
-		fprintf( stderr, "[%zu/%zu][%s]\t%s - %s\n",
+		fprintf( stderr, "[%2zu/%2zu] [%s]\t%s\n",
 					i + 1,
 					tests.size(),
 					namedResult,
-					groupName,
 					tests[ i ].name );
 	}
 
@@ -40,6 +41,8 @@ int main( int argc, char** argv )
 		if( res < 0 )
 			runResult = res;
 	}
+
+	fprintf( stderr, "\n" );
 
 	if( runResult < 0 )
 		fprintf( stderr, "[SOME FAIL]\n" );
