@@ -3,6 +3,7 @@
 #include <cstdlib>		// malloc, free, realloc
 #include <climits>		// INT_MAX
 #include <cassert>		// assert
+#include <utility>		// std::swap
 
 namespace trgm
 {
@@ -80,16 +81,9 @@ namespace trgm
 
 	inline StringBuffer::StringBuffer( StringBuffer&& other )
 	{
-		size = other.size;
-		smallFirst[ 0 ] = other.smallFirst[ 0 ];
-
-		if( smallFirst[ 0 ] == noSmallString )
-			data = other.data;
-		else
-			details::BufferCopy( smallFirst, other.smallFirst, size );
-
-		other.smallFirst[ 0 ] = 0;
-		other.size = smallStringSize;
+		std::swap( size, other.size );
+		std::swap< char, smallStringPart >( smallFirst, other.smallFirst );
+		std::swap( data, other.data );
 	}
 
 	inline void StringBuffer::EnsureSize( size_t newSize )
@@ -115,12 +109,12 @@ namespace trgm
 			}
 
 			// remark: skipped for optimization
-			// else if( smallFirst[ 0 ] == noSmallString )		// it was allocated in heap, but now it needs to be relocated to stack
-			// {
-			// 	auto* oldData = data;
-			// 	details::BufferCopy( smallFirst, oldData, newSize );
-			// 	free( oldData );
-			// }
+			// 	else if( smallFirst[ 0 ] == noSmallString )		// it was allocated in heap, but now it needs to be relocated to stack
+			// 	{
+			// 		auto* oldData = data;
+			// 		details::BufferCopy( smallFirst, oldData, newSize );
+			// 		free( oldData );
+			// 	}
 
 			size = newSize;
 		}
