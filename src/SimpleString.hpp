@@ -12,21 +12,21 @@ namespace trgm
 	class SimpleString
 	{
 	public:
-							SimpleString()						{}
+							SimpleString()							{}
 								// garbage containing string constructor
-		explicit			SimpleString( size_t prefLength )	{ Allocate( prefLength ); }
+		explicit			SimpleString( size_t prefLength )		{ Allocate( prefLength ); }
 		explicit			SimpleString( const char* );
 							SimpleString( const SimpleString& );
 							SimpleString( SimpleString&& ) noexcept;
-							~SimpleString() noexcept			{ Deallocate(); }
+							~SimpleString() noexcept				{ Deallocate(); }
 
-		size_t				Length() const						{ return length; }	// count of bytes, except \0
-		const char*			CStr() const						{ return chars; }	// c-style string
+		size_t				Length() const							{ return length; }	// count of bytes, except \0
+		const char*			CStr() const							{ return chars; }	// c-style string
 
 		SimpleString&		operator=( const SimpleString& );
 		SimpleString&		operator=( SimpleString&& ) noexcept;
-		char&				operator[]( size_t i )				{ assert( i < length + 1 ); return chars[ i ]; }
-		const char&			operator[]( size_t i ) const		{ assert( i < length + 1 ); return chars[ i ]; }
+		char&				operator[]( size_t i )					{ assert( i < length + 1 ); return chars[ i ]; }
+		const char&			operator[]( size_t i ) const			{ assert( i < length + 1 ); return chars[ i ]; }
 
 	private:
 		void				Allocate( size_t size );
@@ -46,9 +46,9 @@ namespace trgm
 	namespace details
 	{
 		//	REMARK:
-		//	All operations on char* done via pointer and other arithmetics 
-		//	to avoid usage of <string> and <cstring> headers (memcpy, strcpy, strlen, and other).
-		//	It is not optimal solution, I know, but task require to implement it that way.
+		//		All operations on char* done via pointer and other arithmetics 
+		//		to avoid usage of <string> and <cstring> headers (memcpy, strcpy, strlen, and other).
+		//		It is not optimal solution, I know, but task require to implement it that way.
 
 		inline void CStringCopy( char* dst, const char* src ) 		{ while( ( *( dst++ ) = *( src++ ) ) );			}
 		inline void CStringLength( const char* str, size_t& out )	{ for( auto* curPtr = str; *curPtr++; out++ );	}
@@ -104,9 +104,7 @@ namespace trgm
 			chars[ prefLength ] = 0;
 		}
 		else
-		{
 			chars = emptyChars;
-		}
 
 		length = prefLength;
 	}
@@ -115,6 +113,7 @@ namespace trgm
 	{
 		if( chars != emptyChars )
 			free( chars );
+
 		chars	= emptyChars;
 		length	= 0;
 	}
@@ -142,27 +141,29 @@ namespace trgm
 		auto changed	= false;
 		size_t len		= 0;
 
-		if( std::istream::sentry{ s, true } )  // state okay, extract characters
+		if( std::istream::sentry{ s, true } )	// state okay, extract characters (could be inverted with unlikely)
 		{
 			try
 			{
-				for( char c = s.rdbuf()->sgetc(); ; c = s.rdbuf()->snextc() )
+				for( auto c = s.rdbuf()->sgetc(); ; c = s.rdbuf()->snextc() )
 				{
-					if( c == EOF )
+					auto character = std::istream::traits_type::to_char_type( c );
+
+					if( c == std::istream::traits_type::eof() )
 					{
 						state |= std::istream::eofbit;
 						break;
 					}
-					else if( c == '\n' )
+					else if( character == '\n' || character == '\r' )
 					{
 						changed = true;
-						s.rdbuf()->sbumpc();
+						s.rdbuf()->sbumpc();	// skip, we dont need it
 						break;
 					}
 					else
 					{
-						char tmp[2] = { c, 0 };
-						str = str + SimpleString{ tmp };
+						char tmp[ 2 ] = { character, 0 };
+						str = str + SimpleString{ tmp };	// TODO: allocate optimization
 					}
 				}
 			}
