@@ -9,7 +9,6 @@ using namespace trgm;
 int main( int argc, char** argv )
 {
 	auto list = std::vector< SimpleString >{};
-	SimpleString tmp;
 
 	for( SimpleString tmp; ! std::cin.eof(); )
 	{

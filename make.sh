@@ -63,9 +63,11 @@ if [ $GEN = true ]; then
 	echo "generating solution for debug"
 	cd $CURRENT_DIRECTORY/obj/Debug
 	cmake $CURRENT_DIRECTORY -DCMAKE_BUILD_TYPE=Debug
-	cd $CURRENT_DIRECTORY/obj/Release
+
 	echo "generating solution for release"
+	cd $CURRENT_DIRECTORY/obj/Release
 	cmake $CURRENT_DIRECTORY -DCMAKE_BUILD_TYPE=Release
+
 	cd $CURRENT_DIRECTORY
 fi
 
