@@ -1,5 +1,5 @@
 #include "TestFramework.hpp"
-#include "SimpleString.hpp"
+#include "Str.hpp"
 #include <cstring>
 
 using namespace trgm;
@@ -12,7 +12,7 @@ DECLARE_TEST_GROUP
 	(
 		Empty_Constructors_Makes_String_With_Zero_Size,
 		{
-			SimpleString s;
+			Str s;
 			EXPECTED( s.Length() == 0 );
 		}
 	),
@@ -20,7 +20,7 @@ DECLARE_TEST_GROUP
 	(
 		Empty_Constructors_Makes_String_With_Empty_C_String,
 		{
-			SimpleString s;
+			Str s;
 			EXPECTED_CSTRING( s.CStr(), "" );
 		}
 	),
@@ -28,9 +28,9 @@ DECLARE_TEST_GROUP
 	(
 		Sum_Of_Strings_Returns_Zero_Terminated_C_String,
 		{
-			SimpleString a{ "abc" };
-			SimpleString b{ "defgh" };
-			SimpleString sum = a + b;
+			Str a{ "abc" };
+			Str b{ "defgh" };
+			Str sum = a + b;
 			EXPECTED_CSTRING( sum.CStr(), "abcdefgh" );
 			EXPECTED( sum.Length() == ( 3 + 5 ) );
 		}
@@ -39,8 +39,8 @@ DECLARE_TEST_GROUP
 	(
 		Sum_Append_For_Strings_Returns_Zero_Terminated_C_String,
 		{
-			SimpleString a{ "abc" };
-			SimpleString b{ "defgh" };
+			Str a{ "abc" };
+			Str b{ "defgh" };
 			a += b;
 			EXPECTED_CSTRING( a.CStr(), "abcdefgh" );
 			EXPECTED( a.Length() == ( 3 + 5 ) );
@@ -50,7 +50,7 @@ DECLARE_TEST_GROUP
 	(
 		Sum_Append_For_Character_Returns_Zero_Terminated_C_String,
 		{
-			SimpleString a{ "abc" };
+			Str a{ "abc" };
 			a += 'd';
 			EXPECTED_CSTRING( a.CStr(), "abcd" );
 			EXPECTED( a.Length() == ( 3 + 1 ) );

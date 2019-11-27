@@ -24,9 +24,9 @@ project( tests CXX )
 add_executable(
 	tests
 		tests/TestFramework.cpp
-		tests/SimpleStringTests.cpp
-		tests/SimpleStringComparatorTests.cpp
-		tests/StringBufferTests.cpp
+		tests/StrTests.cpp
+		tests/StrComparatorTests.cpp
+		tests/StrBufferTests.cpp
 )
 target_include_directories( 
 	tests

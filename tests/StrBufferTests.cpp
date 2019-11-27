@@ -1,5 +1,5 @@
 #include "TestFramework.hpp"
-#include "StringBuffer.hpp"
+#include "StrBuffer.hpp"
 #include <cstring>
 
 using namespace trgm;
@@ -21,7 +21,7 @@ DECLARE_TEST_GROUP
 	(
 		Empty_Constructor_Makes_Buffer_At_Least_Pointer_Sized,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			EXPECTED( b.Size() >= sizeof( void* ) );
 		}
 	),
@@ -29,7 +29,7 @@ DECLARE_TEST_GROUP
 	(
 		Empty_Constructor_Makes_Writable_Buffer,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			auto str = RandomString( b.Size() );
 			memcpy( b.Ptr(), str, b.Size() );
 			EXPECTED_CSTRING( b.Ptr(), str );
@@ -40,7 +40,7 @@ DECLARE_TEST_GROUP
 	(
 		Resized_To_Big_Buffer_Is_Writable,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			b.EnsureSize( 2048 );
 			auto str = RandomString( 2048 );
 			memcpy( b.Ptr(), str, 2048 );
@@ -52,7 +52,7 @@ DECLARE_TEST_GROUP
 	(
 		Resized_To_Big_Buffer_Returns_Not_Less_Size,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			b.EnsureSize( 519 );
 			EXPECTED( b.Size() >= 519 );
 		}
@@ -61,7 +61,7 @@ DECLARE_TEST_GROUP
 	(
 		Resized_To_Small_After_To_Big_Buffer_Is_Writable,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			b.EnsureSize( 519 );
 			b.EnsureSize( 8 );
 			auto str = RandomString( 8 );
@@ -74,12 +74,12 @@ DECLARE_TEST_GROUP
 	(
 		Copy_Buffer_Creates_Memory_Copy,
 		{
-			StringBuffer buf;
+			StrBuffer buf;
 			buf.EnsureSize( 34 );
 			auto str = RandomString( 34 );
 			memcpy( buf.Ptr(), str, 34 );
 
-			StringBuffer bufCopy = buf;
+			StrBuffer bufCopy = buf;
 			*( bufCopy.Ptr() + 3 ) = '+';
 
 			EXPECTED( buf.Ptr() != bufCopy.Ptr() );
@@ -94,12 +94,12 @@ DECLARE_TEST_GROUP
 	(
 		Move_Constructed_Buffer_Content_Is_Same_On_Big_String,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			b.EnsureSize( 2048 );
 			auto str = RandomString( 2048 );
 			memcpy( b.Ptr(), str, 2048 );
 
-			StringBuffer moved{ std::move( b ) };
+			StrBuffer moved{ std::move( b ) };
 			EXPECTED_CSTRING( moved.Ptr(), str );
 			free( str );
 		}
@@ -108,12 +108,12 @@ DECLARE_TEST_GROUP
 	(
 		Move_Constructed_Buffer_Content_Is_Same_On_Small_String,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			b.EnsureSize( 8 );
 			auto str = RandomString( 8 );
 			memcpy( b.Ptr(), str, 8 );
 
-			StringBuffer moved{ std::move( b ) };
+			StrBuffer moved{ std::move( b ) };
 			EXPECTED_CSTRING( moved.Ptr(), str );
 			free( str );
 		}
@@ -122,12 +122,12 @@ DECLARE_TEST_GROUP
 	(
 		Move_Assigned_Buffer_Content_Is_Same_On_Big_String,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			b.EnsureSize( 519 );
 			auto str = RandomString( 519 );
 			memcpy( b.Ptr(), str, 519 );
 
-			StringBuffer moved;
+			StrBuffer moved;
 			{
 				moved.EnsureSize( 615 );
 				auto str2 = RandomString( 615 );
@@ -144,7 +144,7 @@ DECLARE_TEST_GROUP
 	(
 		EnsureSize_On_Same_Size_Not_Changes_String_Nor_Changes_Size,
 		{
-			StringBuffer b;
+			StrBuffer b;
 			b.EnsureSize( 519 );
 			auto str = RandomString( 519 );
 			memcpy( b.Ptr(), str, 519 );
@@ -163,7 +163,7 @@ DECLARE_TEST_GROUP
 	(
 		EnsureSize_Resizes_In_Stable_Way_Small_Strings,
 		{
-			auto smallBuffer = StringBuffer{};
+			auto smallBuffer = StrBuffer{};
 			auto smallBufferInitialSize = smallBuffer.Size();
 
 			smallBuffer.EnsureSize( sizeof( void* ) - 1 );

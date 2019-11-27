@@ -1,19 +1,20 @@
 #pragma once
-#include "SimpleString.hpp"
+#include "Str.hpp"
 #include <cctype>		// std::toupper
 #include <algorithm>	// std::min
 
 namespace trgm
 {
-	namespace SimpleStringComparator
+	namespace StrComparator
 	{
-		static bool CaseInsensitive( const SimpleString& a, const SimpleString& b );
-		static bool CaseInsensitiveInverse( const SimpleString& a, const SimpleString& b );
+		bool CaseInsensitive( const Str& a, const Str& b );
+		bool CaseInsensitiveInverse( const Str& a, const Str& b );
 	}
+
 
 	//	inline implimentation ------------------------------------------------------------------------------
 
-	inline bool SimpleStringComparator::CaseInsensitive( const SimpleString& a, const SimpleString& b )
+	inline bool StrComparator::CaseInsensitive( const Str& a, const Str& b )
 	{
 		const auto* aPtr = a.CStr();
 		const auto* bPtr = b.CStr();
@@ -29,8 +30,8 @@ namespace trgm
 		return a.Length() < b.Length();
 	}
 
-	inline bool SimpleStringComparator::CaseInsensitiveInverse( const SimpleString& a, const SimpleString& b )
+	inline bool StrComparator::CaseInsensitiveInverse( const Str& a, const Str& b )
 	{
-		return SimpleStringComparator::CaseInsensitive( b, a );
+		return StrComparator::CaseInsensitive( b, a );
 	}
 }

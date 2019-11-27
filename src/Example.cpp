@@ -1,5 +1,5 @@
-#include "SimpleString.hpp"
-#include "SimpleStringComparator.hpp"
+#include "Str.hpp"
+#include "StrComparator.hpp"
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -8,9 +8,9 @@ using namespace trgm;
 
 int main( int argc, char** argv )
 {
-	auto list = std::vector< SimpleString >{};
+	auto list = std::vector< Str >{};
 
-	for( SimpleString tmp; ! std::cin.eof(); )
+	for( Str tmp; ! std::cin.eof(); )
 	{
 		std::cin >> tmp;
 		if( tmp.Length() == 0 )
@@ -18,7 +18,8 @@ int main( int argc, char** argv )
 		list.push_back( std::move( tmp ) );
 	}
 
-	std::sort( std::begin(list), std::end(list), SimpleStringComparator::CaseInsensitiveInverse );
+	std::sort(	std::begin( list ), std::end( list ),
+				StrComparator::CaseInsensitiveInverse );
 
 	for( auto& item : list )
 		std::cout << item << '\n';
