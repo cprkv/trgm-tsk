@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  trgm-tsk-tests:
+    build: gcc-cmake-valgrind
+    command: bash -c "
+        ( rm -rf /testing || true )
+        && mkdir /testing 
+        && cp -r /app /testing 
+        && cd /testing/app
+        && ls -la . 
+        && ./make.sh -clean -gen -build
+        && valgrind --track-origins=yes /testing/app/bin/tests
+      "
+    volumes:
+     - ..:/app

@@ -15,14 +15,14 @@ int main( int argc, char** argv )
 	{
 		std::cin >> tmp;
 		if( tmp.Length() == 0 )
-			continue;
+			break;
 		list.push_back( std::move( tmp ) );
 	}
 
 	std::sort( std::begin(list), std::end(list), SimpleStringComparator::CaseInsensitiveInverse );
 
 	for( auto& item : list )
-		std::cout << item.CStr() << '\n';
+		std::cout << item << '\n';
 
 	return 0;
 }

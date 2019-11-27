@@ -15,7 +15,8 @@ namespace trgm
 
 	inline bool SimpleStringComparator::CaseInsensitive( const SimpleString& a, const SimpleString& b )
 	{
-		const auto* aPtr = a.CStr(), * bPtr = b.CStr();
+		const auto* aPtr = a.CStr();
+		const auto* bPtr = b.CStr();
 
 		for( auto n = std::min( a.Length(), b.Length() ); n--; aPtr++, bPtr++ )
 		{

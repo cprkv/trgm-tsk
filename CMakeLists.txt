@@ -1,14 +1,16 @@
-cmake_minimum_required( VERSION 3.10 )
+cmake_minimum_required( VERSION 3.1 )
 
 
 #######################################################
 project( example CXX )
 add_executable(
 	example
-		src/SimpleString.cpp
 		src/Example.cpp
 )
-target_include_directories( example PRIVATE src )
+target_include_directories(
+	example
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 set_target_properties(
 	example PROPERTIES
 		CXX_STANDARD			11
@@ -21,7 +23,6 @@ set_target_properties(
 project( tests CXX )
 add_executable(
 	tests
-		src/SimpleString.cpp
 		tests/TestFramework.cpp
 		tests/SimpleStringTests.cpp
 		tests/SimpleStringComparatorTests.cpp

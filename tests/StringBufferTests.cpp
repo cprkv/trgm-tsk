@@ -82,6 +82,7 @@ DECLARE_TEST_GROUP
 			StringBuffer bufCopy = buf;
 			*( bufCopy.Ptr() + 3 ) = '+';
 
+			EXPECTED( buf.Ptr() != bufCopy.Ptr() );
 			EXPECTED_CSTRING( buf.Ptr(), str );
 			NOT_EXPECTED_CSTRING( bufCopy.Ptr(), str );
 			str[ 3 ] = '+';

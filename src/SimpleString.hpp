@@ -7,39 +7,34 @@
 
 namespace trgm
 {
-	//	Simple string with storage on heap.
-	//	Not uses small string buffer, not uses COW.
+	//	Simple ASCII string implimentation.
 	class SimpleString
 	{
 	public:
 							SimpleString()							{}
-								// garbage containing string constructor
-		explicit			SimpleString( size_t prefLength )		{ Allocate( prefLength ); }
 		explicit			SimpleString( const char* );
 							SimpleString( const SimpleString& );
 							SimpleString( SimpleString&& ) noexcept;
-							~SimpleString() noexcept				{ Deallocate(); }
+							~SimpleString() noexcept				{}
 
-		size_t				Length() const							{ return length; }	// count of bytes, except \0
-		const char*			CStr() const							{ return chars; }	// c-style string
+		size_t				Length() const							{ return length; }			// count of chars, except \0
+		const char*			CStr() const							{ return buffer.Ptr(); }	// c-style string
 
 		SimpleString&		operator=( const SimpleString& );
 		SimpleString&		operator=( SimpleString&& ) noexcept;
-		char&				operator[]( size_t i )					{ assert( i < length + 1 ); return chars[ i ]; }
-		const char&			operator[]( size_t i ) const			{ assert( i < length + 1 ); return chars[ i ]; }
+		char&				operator[]( size_t i )					{ assert( i < length + 1 ); return buffer.Ptr()[ i ]; }
+		const char&			operator[]( size_t i ) const			{ assert( i < length + 1 ); return buffer.Ptr()[ i ]; }
+		SimpleString&		operator+=( char );
+		SimpleString&		operator+=( const SimpleString& );
 
 	private:
-		void				Allocate( size_t size );
-		void				Deallocate() noexcept;
-
-	private:
-		size_t				length	= 0;
-		char*				chars	= emptyChars;
-		static char* 		emptyChars;	// prevents memory allocation on empty string
+		size_t				length = 0;
+		StringBuffer		buffer;
 	};
 
 	SimpleString 			operator+( const SimpleString& a, const SimpleString& b );
 	std::istream& 			operator>>( std::istream& s, SimpleString& a );
+	std::ostream& 			operator<<( std::ostream& s, SimpleString& a );
 
 	//	inline implimentation ---------------------------------------------------------------------------------
 
@@ -58,80 +53,65 @@ namespace trgm
 	{
 		assert( cstr );
 		details::CStringLength( cstr, length );
-		Allocate( length );
-		details::CStringCopy( chars, cstr );
+		buffer.EnsureSize( length + 1 );
+		details::CStringCopy( buffer.Ptr(), cstr );
 	}
 
-	inline SimpleString::SimpleString( const SimpleString& s )
+	inline SimpleString::SimpleString( const SimpleString& other )
+		: length( other.length )
+		, buffer( other.buffer )
 	{
-		Allocate( s.length );
-		details::CStringCopy( chars, s.chars );
 	}
 
-	inline SimpleString::SimpleString( SimpleString&& s ) noexcept
+	inline SimpleString::SimpleString( SimpleString&& other ) noexcept
 	{
-		if( chars != s.chars )
+		std::swap( length, other.length );
+		std::swap( buffer, other.buffer );
+	}
+
+	inline SimpleString& SimpleString::operator=( const SimpleString& other )
+	{
+		if( buffer.Ptr() != other.buffer.Ptr() )
 		{
-			std::swap( length, s.length );
-			std::swap( chars,  s.chars );
+			length = other.length;
+			buffer = other.buffer;
+			return *this;
 		}
 	}
 
-	inline SimpleString& SimpleString::operator=( const SimpleString& s )
+	inline SimpleString& SimpleString::operator=( SimpleString&& other ) noexcept
 	{
-		Deallocate();
-		Allocate( s.length );
-		details::CStringCopy( s.chars, chars );
+		if( buffer.Ptr() != other.buffer.Ptr() )
+		{
+			buffer = StringBuffer{};
+			length = 0;
+			std::swap( length, other.length );
+			std::swap( buffer, other.buffer );
+		}
 		return *this;
 	}
 
-	inline SimpleString& SimpleString::operator=( SimpleString&& s ) noexcept
+	inline SimpleString& SimpleString::operator+=( char c )
 	{
-		if( chars != s.chars )
-		{
-			// Deallocate();
-			std::swap( length, s.length );
-			std::swap( chars,  s.chars );
-		}
+		buffer.EnsureSize( ++length + 1 );
+		buffer.Ptr()[ length - 1 ] = c;
+		buffer.Ptr()[ length ] = 0;
 		return *this;
 	}
 
-	inline void SimpleString::Allocate( size_t prefLength )
+	inline SimpleString& SimpleString::operator+=( const SimpleString& other )
 	{
-		if( prefLength > 0 )
-		{
-			chars = reinterpret_cast< char* >( malloc( prefLength + 1 ) );
-			chars[ prefLength ] = 0;
-		}
-		else
-			chars = emptyChars;
-
-		length = prefLength;
-	}
-
-	inline void SimpleString::Deallocate() noexcept
-	{
-		if( chars != emptyChars )
-			free( chars );
-
-		chars	= emptyChars;
-		length	= 0;
+		buffer.EnsureSize( length + other.length + 1 );
+		details::CStringCopy( buffer.Ptr() + length, other.buffer.Ptr() );
+		length += other.length;
+		return *this;
 	}
 
 	inline SimpleString operator+( const SimpleString& a, const SimpleString& b )
 	{
-		auto commonLength = a.Length() + b.Length();
-		if( commonLength == 0 )
-			return SimpleString{};
-
-		auto str = SimpleString{ commonLength };
-
-		for( size_t i = 0; i < a.Length(); i++ )
-			str[ i ] = a[ i ];
-
-		for( size_t i = 0; i < b.Length(); i++ )
-			str[ i + a.Length() ] = b[ i ];
-
+		auto str = SimpleString{};
+		str += a;
+		str += b;
 		return str;
 	}
 
@@ -162,8 +142,7 @@ namespace trgm
 					}
 					else
 					{
-						char tmp[ 2 ] = { character, 0 };
-						str = str + SimpleString{ tmp };	// TODO: allocate optimization
+						str += character;
 					}
 				}
 			}
@@ -178,6 +157,12 @@ namespace trgm
 			state |= std::istream::failbit;
 
 		s.setstate( state );
+		return s;
+	}
+
+	inline std::ostream& operator<<( std::ostream& s, SimpleString& a )
+	{
+		s.write( a.CStr(), a.Length() );
 		return s;
 	}
 }
