@@ -33,4 +33,4 @@ namespace trgm
 	{
 		return SimpleStringComparator::CaseInsensitive( b, a );
 	}
-} // namespace trgm
+}

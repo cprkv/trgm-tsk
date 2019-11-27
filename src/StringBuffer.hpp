@@ -25,13 +25,15 @@ namespace trgm
 		size_t						Size() const					{ return size; }
 		char*						Ptr()							{ return smallFirst[ 0 ] == noSmallString ? data : smallFirst; }
 		const char*					Ptr() const						{ return smallFirst[ 0 ] == noSmallString ? data : smallFirst; }
-		void						EnsureSize( size_t newSize );
+		void						EnsureSize( size_t newSize );		// resize buffer for it to be able to store data of new size
+		void						Fill( const char* src, size_t srcSize, ptrdiff_t shift = 0 );	// copy src content into buffer
 
 		StringBuffer&				operator=( const StringBuffer& );
 		StringBuffer&				operator=( StringBuffer&& );
 
 	private:
-		size_t						size = smallStringSize;	// full buffer size, even includes \0 symbol and garbage
+		size_t						size = smallStringSize;		// full buffer size, even includes \0 symbol and garbage
+
 	#pragma pack( push, 1 )
 		struct
 		{
@@ -45,11 +47,9 @@ namespace trgm
 
 	namespace details
 	{
-		//	REMARK:
-		//		All operations on void* done via pointer and other arithmetics 
-		//		to avoid usage of <string> and <cstring> headers (memcpy, and other).
-		//		It is not optimal solution, I know, but task require to implement it that way.
-
+		//	All operations on char* done via pointer and other arithmetics to avoid usage of <string> and <cstring> headers.
+		//	It is not optimal solution, I know, but task require to implement it that way.
+		//	This is actually memcpy
 		inline void BufferCopy( char* dst, const char* src, size_t size )
 		{
 			for( ; size--; *( dst++ ) = *( src++ ) );
@@ -58,6 +58,7 @@ namespace trgm
 		inline int NextPowerOfTwo( int x )
 		{
 			assert( x > 0 );
+			// bits magic
 			x--;
 			x |= x >> 1;
 			x |= x >> 2;
@@ -75,7 +76,7 @@ namespace trgm
 		if( other.smallFirst[ 0 ] == noSmallString )
 		{
 			smallFirst[ 0 ] = noSmallString;
-			data = reinterpret_cast< char* >( malloc( size ) );
+			data = static_cast< char* >( malloc( size ) );
 			details::BufferCopy( data, other.data, size );
 		}
 		else
@@ -102,27 +103,39 @@ namespace trgm
 
 				if( smallFirst[ 0 ] != noSmallString )		// it was small string, but now it should be relocated to heap
 				{
-					auto* newData = reinterpret_cast< char* >( malloc( newSize ) );
+					auto* newData = static_cast< char* >( malloc( newSize ) );
 					details::BufferCopy( newData, smallFirst, size );
 					smallFirst[ 0 ]	= noSmallString;
 					data = newData;
 				}
 				else if( newSize != size )					// it was allocated in heap, and now it should be resized
 				{
-					data = reinterpret_cast< char* >( realloc( data, newSize ) );
+					data = static_cast< char* >( realloc( data, newSize ) );
 				}
+
+				size = newSize;
 			}
+			else
+			{
+				if( smallFirst[ 0 ] == noSmallString )		// it was allocated in heap, but now it needs to be relocated to stack
+				{
+					auto* oldData = data;
+					details::BufferCopy( smallFirst, oldData, newSize );
+					free( oldData );
+				}
 
-			// remark: skipped for optimization
-			// 	else if( smallFirst[ 0 ] == noSmallString )		// it was allocated in heap, but now it needs to be relocated to stack
-			// 	{
-			// 		auto* oldData = data;
-			// 		details::BufferCopy( smallFirst, oldData, newSize );
-			// 		free( oldData );
-			// 	}
-
-			size = newSize;
+				size = smallStringSize;
+			}
 		}
+	}
+
+	inline void StringBuffer::Fill( const char* src, size_t srcSize, ptrdiff_t shift )
+	{
+		size_t requiredSize = shift + srcSize;
+		if( requiredSize > size )
+			EnsureSize( requiredSize );
+
+		details::BufferCopy( Ptr() + shift, src, srcSize );
 	}
 
 	inline StringBuffer& StringBuffer::operator=( const StringBuffer& other )
@@ -135,7 +148,7 @@ namespace trgm
 		if( other.smallFirst[ 0 ] == noSmallString )
 		{
 			smallFirst[ 0 ] = noSmallString;
-			data = reinterpret_cast< char* >( malloc( size ) );
+			data = static_cast< char* >( malloc( size ) );
 			details::BufferCopy( data, other.data, size );
 		}
 		else
@@ -160,4 +173,4 @@ namespace trgm
 
 		return *this;
 	}
-} // namespace trgm
+}

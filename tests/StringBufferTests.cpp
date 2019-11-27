@@ -159,4 +159,22 @@ DECLARE_TEST_GROUP
 			free( str );
 		}
 	),
+	DECLARE_TEST_FUNC
+	(
+		EnsureSize_Resizes_In_Stable_Way_Small_Strings,
+		{
+			auto smallBuffer = StringBuffer{};
+			auto smallBufferInitialSize = smallBuffer.Size();
+
+			smallBuffer.EnsureSize( sizeof( void* ) - 1 );
+			auto smallBufferAfterSmallResize = smallBuffer.Size();
+
+			smallBuffer.EnsureSize( 1222 );
+			smallBuffer.EnsureSize( sizeof( void* ) );
+			auto smallBufferAfterBigToShortResize = smallBuffer.Size();
+
+			EXPECTED( smallBufferInitialSize == smallBufferAfterSmallResize );
+			EXPECTED( smallBufferInitialSize == smallBufferAfterBigToShortResize );
+		}
+	),
 );

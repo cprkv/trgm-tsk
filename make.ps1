@@ -4,7 +4,6 @@ param
 	[switch] $gen			= $false,
 	[switch] $build			= $false,
 	[string] $config		= 'Debug',
-	[switch] $cleanbuild	= $false,
 	[switch] $run			= $false,
 	[switch] $test			= $false
 )
@@ -44,21 +43,14 @@ try
 	if( $gen )
 	{
 		Write-Output "generating solution"
-		cmake -S . -B obj -Werror=dev
+		Set-Location obj
+		cmake ..
+		Set-Location $currentDirectory
 	}
 	if( $build -or $cleanbuild )
 	{
 		Write-Output "building solution in config $config"
-		$additionalArgs = @()
-		if( $config.Equals( "Debug" ) )
-		{
-			$additionalArgs = $additionalArgs + "--verbose"
-		}
-		if( $cleanbuild )
-		{
-			$additionalArgs = $additionalArgs + "--clean-first"
-		}
-		cmake --build obj --config $config $additionalArgs
+		cmake --build obj --config $config
 		Remove-Item bin/example.exe -Confirm:$false -Force -ErrorAction Ignore
 		Remove-Item bin/tests.exe -Confirm:$false -Force -ErrorAction Ignore
 		Copy-Item obj/$config/example.exe bin

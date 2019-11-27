@@ -36,25 +36,18 @@ namespace trgm
 	std::istream& 			operator>>( std::istream& s, SimpleString& a );
 	std::ostream& 			operator<<( std::ostream& s, SimpleString& a );
 
-	//	inline implimentation ---------------------------------------------------------------------------------
-
-	namespace details
-	{
-		//	REMARK:
-		//		All operations on char* done via pointer and other arithmetics 
-		//		to avoid usage of <string> and <cstring> headers (memcpy, strcpy, strlen, and other).
-		//		It is not optimal solution, I know, but task require to implement it that way.
-
-		inline void CStringCopy( char* dst, const char* src ) 		{ while( ( *( dst++ ) = *( src++ ) ) );			}
-		inline void CStringLength( const char* str, size_t& out )	{ for( auto* curPtr = str; *curPtr++; out++ );	}
-	}
+	//	inline implimentation -------------------------------------------------------------------------------------------
 
 	inline SimpleString::SimpleString( const char* cstr )
 	{
 		assert( cstr );
-		details::CStringLength( cstr, length );
-		buffer.EnsureSize( length + 1 );
-		details::CStringCopy( buffer.Ptr(), cstr );
+
+		//	All operations on char* done via pointer and other arithmetics to avoid usage of <string> and <cstring> headers.
+		//	It is not optimal solution, I know, but task require to implement it that way.
+		//	This is actually	length = strlen( cstr );
+		for( auto* curPtr = cstr; *curPtr++; length++ );
+
+		buffer.Fill( cstr, length + 1 );
 	}
 
 	inline SimpleString::SimpleString( const SimpleString& other )
@@ -75,8 +68,8 @@ namespace trgm
 		{
 			length = other.length;
 			buffer = other.buffer;
-			return *this;
 		}
+		return *this;
 	}
 
 	inline SimpleString& SimpleString::operator=( SimpleString&& other ) noexcept
@@ -94,15 +87,15 @@ namespace trgm
 	inline SimpleString& SimpleString::operator+=( char c )
 	{
 		buffer.EnsureSize( ++length + 1 );
-		buffer.Ptr()[ length - 1 ] = c;
-		buffer.Ptr()[ length ] = 0;
+		auto* str = buffer.Ptr();
+		str[ length - 1 ] = c;
+		str[ length ] = 0;
 		return *this;
 	}
 
 	inline SimpleString& SimpleString::operator+=( const SimpleString& other )
 	{
-		buffer.EnsureSize( length + other.length + 1 );
-		details::CStringCopy( buffer.Ptr() + length, other.buffer.Ptr() );
+		buffer.Fill( other.buffer.Ptr(), other.buffer.Size(), length );
 		length += other.length;
 		return *this;
 	}
@@ -123,7 +116,7 @@ namespace trgm
 
 		if( std::istream::sentry{ s, true } )	// state okay, extract characters (could be inverted with unlikely)
 		{
-			try
+			try // some strange technique of using input streams (msvcrt)
 			{
 				for( auto c = s.rdbuf()->sgetc(); ; c = s.rdbuf()->snextc() )
 				{
@@ -149,7 +142,10 @@ namespace trgm
 			catch( ... )
 			{
 				s.setstate( std::istream::badbit );
-				return s;
+
+				// actually it does 'reraise' parameter of istream::setstate
+				// but it's not standard cpp feature
+				throw;
 			}
 		}
 
