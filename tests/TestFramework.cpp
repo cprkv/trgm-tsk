@@ -2,7 +2,7 @@
 
 using namespace trgm;
 
-std::vector< TestGroup > trgm::testGroups;
+std::vector< TestGroup >	trgm::testGroups;
 
 static int RunTestsInGroup( const char* groupName, 
 							const std::vector< TestPrototype >& tests )
@@ -15,7 +15,7 @@ static int RunTestsInGroup( const char* groupName,
 	{
 		const char* namedResult = "OK";
 
-		if( tests[ i ].func() < 0 )
+		if( tests[ i ].m_func() < 0 )
 		{
 			runResult	= -1;
 			namedResult	= "FAIL";
@@ -25,7 +25,7 @@ static int RunTestsInGroup( const char* groupName,
 					i + 1,
 					tests.size(),
 					namedResult,
-					tests[ i ].name );
+					tests[ i ].m_name );
 	}
 
 	return runResult;
@@ -37,7 +37,7 @@ int main( int argc, char** argv )
 
 	for( auto& group : testGroups )
 	{
-		auto res = RunTestsInGroup( group.name, group.tests );
+		auto res = RunTestsInGroup( group.m_name, group.m_tests );
 		if( res < 0 )
 			runResult = res;
 	}

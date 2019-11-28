@@ -1,5 +1,4 @@
 #include "Str.hpp"
-#include "StrComparator.hpp"
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -19,7 +18,7 @@ int main( int argc, char** argv )
 	}
 
 	std::sort(	std::begin( list ), std::end( list ),
-				StrComparator::CaseInsensitiveInverse );
+				comparators::CaseInsensitiveInverse );
 
 	for( auto& item : list )
 		std::cout << item << '\n';

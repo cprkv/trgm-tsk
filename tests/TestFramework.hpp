@@ -7,28 +7,28 @@
 //	Simple testing framework.
 //	I wrote it because of task requirement: "без каких либо сторонних библиотек".
 
-#if defined( EXPECTED ) ||\
-	defined( EXPECTED_CSTRING ) ||\
-	defined( NOT_EXPECTED_CSTRING ) ||\
-	defined( DECLARE_TEST_FUNC ) ||\
-	defined( DECLARE_TEST_GROUP )
+#if defined( TRGM_EXPECTED ) ||\
+	defined( TRGM_EXPECTED_CSTRING ) ||\
+	defined( TRGM_NOT_EXPECTED_CSTRING ) ||\
+	defined( TRGM_DECLARE_TEST_FUNC ) ||\
+	defined( TRGM_DECLARE_TEST_GROUP )
 #error unexpected declaration of macro
 #endif
 
-#define EXPECTED( cond ) 															\
+#define TRGM_EXPECTED( cond ) 														\
 	if( !( cond ) ) 	 															\
 	{																				\
 	 	fprintf( stderr, "\n\texpected value of\n\t\t%s\n\tto be true\n", #cond );	\
 		__testRunResult = -1; 														\
 	}
 
-#define EXPECTED_CSTRING( result, expected ) 										\
-	EXPECTED( strcmp( result, expected ) == 0 )
+#define TRGM_EXPECTED_CSTRING( result, expected ) 									\
+	TRGM_EXPECTED( strcmp( result, expected ) == 0 )
 
-#define NOT_EXPECTED_CSTRING( result, expected ) 									\
-	EXPECTED( strcmp( result, expected ) != 0 )
+#define TRGM_NOT_EXPECTED_CSTRING( result, expected ) 								\
+	TRGM_EXPECTED( strcmp( result, expected ) != 0 )
 
-#define DECLARE_TEST_FUNC( name, ... ) 												\
+#define TRGM_DECLARE_TEST_FUNC( name, ... ) 										\
 	trgm::TestPrototype																\
 	{ 																				\
 		#name, 																		\
@@ -40,7 +40,7 @@
 		}, 																			\
 	}
 
-#define DECLARE_TEST_GROUP( name, ... )												\
+#define TRGM_DECLARE_TEST_GROUP( name, ... )										\
 	static struct name																\
 	{																				\
 		name()																		\
@@ -51,19 +51,21 @@
 		}																			\
 	} name##Instance;
 
-namespace trgm
-{
+
+namespace trgm {
+
 	struct TestPrototype
 	{
-		const char*						name;
-		std::function< int () >			func;
+		const char*						m_name;
+		std::function< int () >			m_func;
 	};
 
 	struct TestGroup
 	{
-		const char*						name;
-		std::vector< TestPrototype >	tests;
+		const char*						m_name;
+		std::vector< TestPrototype >	m_tests;
 	};
 
 	extern std::vector< TestGroup >		testGroups;
-}
+
+}	// namespace trgm

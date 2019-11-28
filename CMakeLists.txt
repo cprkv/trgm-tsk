@@ -1,11 +1,25 @@
 cmake_minimum_required( VERSION 3.1 )
 
+set(
+	SOURCES
+		${CMAKE_CURRENT_SOURCE_DIR}/src/Str.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/StrBuffer.cpp
+)
+set(
+	TESTS
+		${SOURCES}
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/StrTests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/StrComparatorTests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/StrBufferTests.cpp
+)
+
 
 #######################################################
 project( example CXX )
 add_executable(
 	example
-		src/Example.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/Example.cpp
+		${SOURCES}
 )
 target_include_directories(
 	example
@@ -23,10 +37,8 @@ set_target_properties(
 project( tests CXX )
 add_executable(
 	tests
-		tests/TestFramework.cpp
-		tests/StrTests.cpp
-		tests/StrComparatorTests.cpp
-		tests/StrBufferTests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/TestFramework.cpp
+		${TESTS}
 )
 target_include_directories( 
 	tests

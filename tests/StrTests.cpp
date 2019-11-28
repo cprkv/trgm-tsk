@@ -4,56 +4,56 @@
 
 using namespace trgm;
 
-DECLARE_TEST_GROUP
+TRGM_DECLARE_TEST_GROUP
 (
 	Simple_String_Tests,
 
-	DECLARE_TEST_FUNC
+	TRGM_DECLARE_TEST_FUNC
 	(
 		Empty_Constructors_Makes_String_With_Zero_Size,
 		{
 			Str s;
-			EXPECTED( s.Length() == 0 );
+			TRGM_EXPECTED( s.Length() == 0 );
 		}
 	),
-	DECLARE_TEST_FUNC
+	TRGM_DECLARE_TEST_FUNC
 	(
 		Empty_Constructors_Makes_String_With_Empty_C_String,
 		{
 			Str s;
-			EXPECTED_CSTRING( s.CStr(), "" );
+			TRGM_EXPECTED_CSTRING( s.CStr(), "" );
 		}
 	),
-	DECLARE_TEST_FUNC
+	TRGM_DECLARE_TEST_FUNC
 	(
 		Sum_Of_Strings_Returns_Zero_Terminated_C_String,
 		{
 			Str a{ "abc" };
 			Str b{ "defgh" };
 			Str sum = a + b;
-			EXPECTED_CSTRING( sum.CStr(), "abcdefgh" );
-			EXPECTED( sum.Length() == ( 3 + 5 ) );
+			TRGM_EXPECTED_CSTRING( sum.CStr(), "abcdefgh" );
+			TRGM_EXPECTED( sum.Length() == ( 3 + 5 ) );
 		}
 	),
-	DECLARE_TEST_FUNC
+	TRGM_DECLARE_TEST_FUNC
 	(
 		Sum_Append_For_Strings_Returns_Zero_Terminated_C_String,
 		{
 			Str a{ "abc" };
 			Str b{ "defgh" };
 			a += b;
-			EXPECTED_CSTRING( a.CStr(), "abcdefgh" );
-			EXPECTED( a.Length() == ( 3 + 5 ) );
+			TRGM_EXPECTED_CSTRING( a.CStr(), "abcdefgh" );
+			TRGM_EXPECTED( a.Length() == ( 3 + 5 ) );
 		}
 	),
-	DECLARE_TEST_FUNC
+	TRGM_DECLARE_TEST_FUNC
 	(
 		Sum_Append_For_Character_Returns_Zero_Terminated_C_String,
 		{
 			Str a{ "abc" };
 			a += 'd';
-			EXPECTED_CSTRING( a.CStr(), "abcd" );
-			EXPECTED( a.Length() == ( 3 + 1 ) );
+			TRGM_EXPECTED_CSTRING( a.CStr(), "abcd" );
+			TRGM_EXPECTED( a.Length() == ( 3 + 1 ) );
 		}
 	),
 );
