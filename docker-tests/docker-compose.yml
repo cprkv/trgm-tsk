@@ -11,6 +11,7 @@ services:
         && ls -la . 
         && ./make.sh -clean -gen -build
         && valgrind --track-origins=yes /testing/app/bin/tests
+        && printf 'a\\nb\\nc' | valgrind --track-origins=yes /testing/app/bin/example
       "
     volumes:
      - ..:/app
