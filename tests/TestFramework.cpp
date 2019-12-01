@@ -2,42 +2,35 @@
 
 using namespace trgm;
 
-std::vector< TestGroup >	trgm::testGroups;
-
-static int RunTestsInGroup( const char* groupName, 
-							const std::vector< TestPrototype >& tests )
+int TestGroup::Run()
 {
 	int runResult = 0;
 
-	fprintf( stderr, "\n[GROUP]\t\t%s\n", groupName );
+	fprintf( stderr, "\n[GROUP]\t\t%s\n", m_name );
 
-	for( size_t i = 0; i < tests.size(); i++ )
+	for( size_t i = 0; i < m_tests.size(); i++ )
 	{
 		const char* namedResult = "OK";
 
-		if( tests[ i ].m_func() < 0 )
+		if( m_tests[ i ].m_func() < 0 )
 		{
 			runResult	= -1;
 			namedResult	= "FAIL";
 		}
 
-		fprintf( stderr, "[%2zu/%2zu] [%s]\t%s\n",
-					i + 1,
-					tests.size(),
-					namedResult,
-					tests[ i ].m_name );
+		fprintf( stderr, "[%2zu/%2zu] [%s]\t%s\n", i + 1, m_tests.size(), namedResult, m_tests[ i ].m_name );
 	}
 
 	return runResult;
 }
 
-int main( int argc, char** argv )
+int trgm::RunGroups( std::vector< TestGroup > testGroups )
 {
 	int runResult = 0;
 
 	for( auto& group : testGroups )
 	{
-		auto res = RunTestsInGroup( group.m_name, group.m_tests );
+		auto res = group.Run();
 		if( res < 0 )
 			runResult = res;
 	}

@@ -17,8 +17,7 @@ int main( int argc, char** argv )
 		list.push_back( std::move( tmp ) );
 	}
 
-	std::sort(	std::begin( list ), std::end( list ),
-				comparators::CaseInsensitiveInverse );
+	std::sort( std::begin( list ), std::end( list ), comparators::CaseInsensitiveInverse );
 
 	for( auto& item : list )
 		std::cout << item << '\n';

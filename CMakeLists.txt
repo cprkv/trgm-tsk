@@ -8,6 +8,7 @@ set(
 set(
 	TESTS
 		${SOURCES}
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/TestFramework.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/tests/StrTests.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/tests/StrComparatorTests.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/tests/StrBufferTests.cpp
@@ -37,7 +38,7 @@ set_target_properties(
 project( tests CXX )
 add_executable(
 	tests
-		${CMAKE_CURRENT_SOURCE_DIR}/tests/TestFramework.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/Entry.cpp
 		${TESTS}
 )
 target_include_directories( 

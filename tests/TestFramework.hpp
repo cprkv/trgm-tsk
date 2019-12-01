@@ -10,8 +10,7 @@
 #if defined( TRGM_EXPECTED ) ||\
 	defined( TRGM_EXPECTED_CSTRING ) ||\
 	defined( TRGM_NOT_EXPECTED_CSTRING ) ||\
-	defined( TRGM_DECLARE_TEST_FUNC ) ||\
-	defined( TRGM_DECLARE_TEST_GROUP )
+	defined( TRGM_DECLARE_TEST_FUNC )
 #error unexpected declaration of macro
 #endif
 
@@ -19,7 +18,7 @@
 	if( !( cond ) ) 	 															\
 	{																				\
 	 	fprintf( stderr, "\n\texpected value of\n\t\t%s\n\tto be true\n", #cond );	\
-		__testRunResult = -1; 														\
+		return -1; 																	\
 	}
 
 #define TRGM_EXPECTED_CSTRING( result, expected ) 									\
@@ -31,7 +30,7 @@
 #define TRGM_DECLARE_TEST_FUNC( name, ... ) 										\
 	trgm::TestPrototype																\
 	{ 																				\
-		#name, 																		\
+		name, 																		\
 		[]() -> int 																\
 		{ 																			\
 			int __testRunResult = 0;												\
@@ -40,32 +39,30 @@
 		}, 																			\
 	}
 
-#define TRGM_DECLARE_TEST_GROUP( name, ... )										\
-	static struct name																\
-	{																				\
-		name()																		\
-		{																			\
-			auto groupTests = std::vector< trgm::TestPrototype>{ __VA_ARGS__ }; 	\
-			auto group = trgm::TestGroup{ #name, std::move( groupTests ) };			\
-			trgm::testGroups.push_back( std::move( group ) );						\
-		}																			\
-	} name##Instance;
-
-
 namespace trgm {
 
 	struct TestPrototype
 	{
-		const char*						m_name;
-		std::function< int () >			m_func;
+		const char*				m_name;
+		std::function< int() >	m_func;
 	};
 
-	struct TestGroup
+	class TestGroup
 	{
-		const char*						m_name;
-		std::vector< TestPrototype >	m_tests;
+	public:
+		using					Tests					= std::vector< TestPrototype >;
+
+	public:
+								TestGroup( const char* name, Tests&& tests ) : m_name( name ), m_tests( tests ) 	{};
+								~TestGroup()			= default;
+
+		int						Run();
+
+	private:
+		const char*				m_name;
+		Tests					m_tests;
 	};
 
-	extern std::vector< TestGroup >		testGroups;
+	int 						RunGroups( std::vector< TestGroup > testGroups );
 
 }	// namespace trgm

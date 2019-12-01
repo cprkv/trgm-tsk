@@ -1,6 +1,8 @@
 #include "Str.hpp"
 #include <cassert>
 #include <utility>
+#include <cctype>		// std::toupper
+#include <algorithm>	// std::min
 
 using namespace trgm;
 

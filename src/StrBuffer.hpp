@@ -17,9 +17,9 @@ namespace trgm {
 
 	public:
 						StrBuffer()							{}
-						~StrBuffer()						{	if( m_smallFirst[ 0 ] == noSmallString )  free( m_data );			}
 						StrBuffer( const StrBuffer& o );
 						StrBuffer( StrBuffer&& o );
+						~StrBuffer()						{	if( m_smallFirst[ 0 ] == noSmallString )  free( m_data );			}
 
 		size_t			Size() const						{	return m_size; 														}
 		char*			Ptr()								{	return m_smallFirst[ 0 ] == noSmallString ? m_data : m_smallFirst; 	}

@@ -11,10 +11,10 @@ namespace trgm {
 	{
 	public:
 						Str()																				{}
-						~Str()																				{}
 		explicit		Str( const char* cstr );
 						Str( const Str& o )		: m_length( o.m_length ), m_buffer( o.m_buffer )			{}
 						Str( Str&& o );
+						~Str()																				{}
 
 		size_t			Length() const									{	return m_length;				}
 		const char*		CStr() const									{	return m_buffer.Ptr();			}
@@ -25,8 +25,8 @@ namespace trgm {
 		Str&			operator+=( const Str& o );
 
 	private:
-		size_t			m_length				= 0;
-		StrBuffer		m_buffer				= StrBuffer{};
+		size_t			m_length										= 0;
+		StrBuffer		m_buffer										= StrBuffer{};
 	};
 
 	inline Str			operator+( const Str& a, const Str& b )			{	return ( Str{} += a ) += b;		}
