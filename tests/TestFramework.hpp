@@ -53,7 +53,7 @@ namespace trgm {
 		using					Tests					= std::vector< TestPrototype >;
 
 	public:
-								TestGroup( const char* name, Tests&& tests ) : m_name( name ), m_tests( tests ) 	{};
+								TestGroup( const char* name, Tests&& tests ) : m_name( name ), m_tests( tests ) {};
 								~TestGroup()			= default;
 
 		int						Run();
@@ -63,6 +63,8 @@ namespace trgm {
 		Tests					m_tests;
 	};
 
-	int 						RunGroups( std::vector< TestGroup > testGroups );
+	using						TestGroups				= std::vector< TestGroup >;
+
+	int 						RunGroups( TestGroups&& testGroups );
 
 }	// namespace trgm

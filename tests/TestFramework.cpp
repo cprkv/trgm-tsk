@@ -24,7 +24,7 @@ int TestGroup::Run()
 	return runResult;
 }
 
-int trgm::RunGroups( std::vector< TestGroup > testGroups )
+int trgm::RunGroups( TestGroups&& testGroups )
 {
 	int runResult = 0;
 
