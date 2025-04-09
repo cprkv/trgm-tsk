@@ -76,8 +76,8 @@ if [ $BUILD = true ]; then
 	cmake --build obj/$CONFIG
 	rm -f bin/example
 	rm -f bin/tests
-	cp obj/$CONFIG/example bin
-	cp obj/$CONFIG/tests bin
+	cp obj/$CONFIG/example/example bin
+	cp obj/$CONFIG/tests/tests bin
 fi
 
 if [ $RUN = true ]; then

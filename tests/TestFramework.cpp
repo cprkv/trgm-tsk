@@ -1,47 +1,41 @@
 #include "TestFramework.hpp"
+#include <iostream> // std::cout
+#include <vector>	// std::vector
 
 using namespace trgm;
 
-int TestGroup::Run()
+static std::vector<TestCase>& GetGlobalTestCaseContainer()
 {
-	int runResult = 0;
-
-	fprintf( stderr, "\n[GROUP]\t\t%s\n", m_name );
-
-	for( size_t i = 0; i < m_tests.size(); i++ )
-	{
-		const char* namedResult = "OK";
-
-		if( m_tests[ i ].m_func() < 0 )
-		{
-			runResult	= -1;
-			namedResult	= "FAIL";
-		}
-
-		fprintf( stderr, "[%2zu/%2zu] [%s]\t%s\n", i + 1, m_tests.size(), namedResult, m_tests[ i ].m_name );
-	}
-
-	return runResult;
+	static std::vector<TestCase> testCases;
+	return testCases;
 }
 
-int trgm::RunGroups( TestGroups&& testGroups )
+TestCase trgm::RegisterGlobalTestCase( TestCase testCase )
 {
-	int runResult = 0;
+	GetGlobalTestCaseContainer().push_back( testCase );
+	return testCase;
+}
 
-	for( auto& group : testGroups )
+TestCaseResult trgm::RunTests()
+{
+	const auto& testCases = GetGlobalTestCaseContainer();
+	auto		runResult = TestCaseResult::OK;
+
+	for( size_t i = 0; i < testCases.size(); ++i )
 	{
-		auto res = group.Run();
-		if( res < 0 )
-			runResult = res;
+		std::cout << '[' << i + 1 << '/' << testCases.size() << "] " << testCases[i].m_name << "... ";
+
+		const char* namedResult = "OK";
+		const auto	result		= testCases[i].m_func();
+
+		if( result != TestCaseResult::OK )
+		{
+			runResult	= TestCaseResult::FAILED;
+			namedResult = "FAIL";
+		}
+
+		std::cout << namedResult << '\n';
 	}
 
-	fprintf( stderr, "\n" );
-
-	if( runResult < 0 )
-		fprintf( stderr, "[SOME FAIL]\n" );
-	else
-		fprintf( stderr, "[ALL OK]\n" );
-
-	fflush( stderr );
 	return runResult;
 }

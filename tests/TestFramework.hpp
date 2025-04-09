@@ -1,70 +1,45 @@
 #pragma once
-#include <cstdio>
-#include <utility>
-#include <vector>
-#include <functional>
+#include <cstring>	// strcmp
+#include <iostream> // std::cerr
 
-//	Simple testing framework.
+//	Very compact and simple testing framework.
 //	I wrote it because of task requirement: "без каких либо сторонних библиотек".
 
-#if defined( TRGM_EXPECTED ) ||\
-	defined( TRGM_EXPECTED_CSTRING ) ||\
-	defined( TRGM_NOT_EXPECTED_CSTRING ) ||\
-	defined( TRGM_DECLARE_TEST_FUNC )
-#error unexpected declaration of macro
-#endif
-
-#define TRGM_EXPECTED( cond ) 														\
-	if( !( cond ) ) 	 															\
-	{																				\
-	 	fprintf( stderr, "\n\texpected value of\n\t\t%s\n\tto be true\n", #cond );	\
-		return -1; 																	\
+#define TRGM_REQUIRE( cond )                                                 \
+	if( !( cond ) )                                                          \
+	{                                                                        \
+		std::cerr << "\n\texpected value of\n\t\t" #cond "\n\tto be true\n"; \
+		return TestCaseResult::FAILED;                                       \
 	}
 
-#define TRGM_EXPECTED_CSTRING( result, expected ) 									\
-	TRGM_EXPECTED( strcmp( result, expected ) == 0 )
+#define TRGM_REQUIRE_CSTRING( result, expected ) \
+	TRGM_REQUIRE( strcmp( result, expected ) == 0 )
 
-#define TRGM_NOT_EXPECTED_CSTRING( result, expected ) 								\
-	TRGM_EXPECTED( strcmp( result, expected ) != 0 )
+#define TRGM_NOT_EXPECTED_CSTRING( result, expected ) \
+	TRGM_REQUIRE( strcmp( result, expected ) != 0 )
 
-#define TRGM_DECLARE_TEST_FUNC( name, ... ) 										\
-	trgm::TestPrototype																\
-	{ 																				\
-		name, 																		\
-		[]() -> int 																\
-		{ 																			\
-			int __testRunResult = 0;												\
-			__VA_ARGS__; 															\
-			return __testRunResult; 												\
-		}, 																			\
-	}
+#define TRGM_TOKEN_CONCAT_1( x, y ) x##y
+#define TRGM_TOKEN_CONCAT( x, y ) TRGM_TOKEN_CONCAT_1( x, y )
 
-namespace trgm {
+#define TRGM_REGISTER_TEST_CASE( func )                                \
+	static trgm::TestCase TRGM_TOKEN_CONCAT( g_testCase_, __LINE__ ) = \
+		trgm::RegisterGlobalTestCase( trgm::TestCase{ #func, func } )
 
-	struct TestPrototype
+namespace trgm
+{
+	enum class TestCaseResult
 	{
-		const char*				m_name;
-		std::function< int() >	m_func;
+		OK,
+		FAILED,
 	};
 
-	class TestGroup
+	struct TestCase
 	{
-	public:
-		using					Tests					= std::vector< TestPrototype >;
-
-	public:
-								TestGroup( const char* name, Tests&& tests ) : m_name( name ), m_tests( tests ) {};
-								~TestGroup()			= default;
-
-		int						Run();
-
-	private:
-		const char*				m_name;
-		Tests					m_tests;
+		const char* m_name;
+		TestCaseResult ( *m_func )();
 	};
 
-	using						TestGroups				= std::vector< TestGroup >;
+	TestCase	   RegisterGlobalTestCase( TestCase testCase );
+	TestCaseResult RunTests();
 
-	int 						RunGroups( TestGroups&& testGroups );
-
-}	// namespace trgm
+} // namespace trgm

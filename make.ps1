@@ -53,8 +53,8 @@ try
 		cmake --build obj --config $config
 		Remove-Item bin/example.exe -Confirm:$false -Force -ErrorAction Ignore
 		Remove-Item bin/tests.exe -Confirm:$false -Force -ErrorAction Ignore
-		Copy-Item obj/$config/example.exe bin
-		Copy-Item obj/$config/tests.exe bin
+		Copy-Item obj/example/$config/example.exe bin
+		Copy-Item obj/tests/$config/tests.exe bin
 	}
 	if( $run )
 	{
