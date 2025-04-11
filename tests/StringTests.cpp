@@ -2,8 +2,12 @@
 #include "String.hpp"
 #include <string>
 #include <sstream>
+#include <type_traits>
 
 using namespace trgm;
+
+static_assert( std::is_move_constructible<String>::value, "Should be move constructible" );
+static_assert( std::is_move_assignable<String>::value, "Should be move assignable" );
 
 static std::string ToSTLString( const String& str )
 {
@@ -43,6 +47,7 @@ static TestCaseResult StringMoveConstructorWorks()
 
 	TRGM_REQUIRE( ToSTLString( b ) == "abc" );
 	TRGM_REQUIRE( ptr1 == ptr2 );
+	TRGM_REQUIRE( a.Data() == nullptr );
 	return TestCaseResult::OK;
 }
 
@@ -56,6 +61,7 @@ static TestCaseResult StringMoveOperatorWorks()
 
 	TRGM_REQUIRE( ToSTLString( b ) == "abc" );
 	TRGM_REQUIRE( ptr1 == ptr2 );
+	TRGM_REQUIRE( a.Data() == nullptr );
 	return TestCaseResult::OK;
 }
 

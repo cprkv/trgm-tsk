@@ -38,3 +38,4 @@ obj
 bin
 vgcore*
 build
+*.zip
